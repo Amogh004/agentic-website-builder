@@ -1,0 +1,365 @@
+/*
+    styles.css – Visual Design System & Responsive Layout for Todo App
+    ---------------------------------------------------------------
+    Implements:
+    1. CSS Custom Properties (Light/Dark themes)
+    2. Global reset & base styles
+    3. Layout (header, input, list, controls) with Flexbox/Grid
+    4. Todo item styling + completed state
+    5. Drag‑and‑Drop feedback
+    6. Animations & transitions
+    7. Theme toggle button
+    8. Accessibility focus outlines & contrast
+*/
+
+/* --------------------------------------------------------------- */
+/* 1. Theme Variables */
+:root {
+    /* Light theme */
+    --color-bg: #f5f5f5;
+    --color-surface: #ffffff;
+    --color-text: #222222;
+    --color-primary: #1976d2;   /* blue */
+    --color-accent: #e91e63;    /* pink */
+    --color-muted: #777777;
+    --color-border: #e0e0e0;
+    --color-success: #4caf50;
+    --color-danger: #f44336;
+    --transition-duration: 0.3s;
+    --radius: 4px;
+    --shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+html[data-theme="dark"] {
+    /* Dark theme overrides */
+    --color-bg: #121212;
+    --color-surface: #1e1e1e;
+    --color-text: #e0e0e0;
+    --color-primary: #90caf9;   /* lighter blue */
+    --color-accent: #f48fb1;    /* lighter pink */
+    --color-muted: #bbbbbb;
+    --color-border: #333333;
+    --color-success: #81c784;
+    --color-danger: #e57373;
+    --shadow: 0 2px 4px rgba(0,0,0,0.5);
+}
+
+/* --------------------------------------------------------------- */
+/* 2. Global Reset & Base Styles */
+*, *::before, *::after {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+html {
+    scroll-behavior: smooth;
+    font-size: 16px;
+    background-color: var(--color-bg);
+    color: var(--color-text);
+    transition: background-color var(--transition-duration) ease, color var(--transition-duration) ease;
+}
+
+body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    line-height: 1.5;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 1rem;
+    background-color: var(--color-bg);
+    color: var(--color-text);
+}
+
+h1 {
+    font-size: 2rem;
+    margin-bottom: 0.5rem;
+}
+
+button {
+    cursor: pointer;
+    border: none;
+    background: var(--color-primary);
+    color: #fff;
+    padding: 0.5rem 1rem;
+    border-radius: var(--radius);
+    font-size: 1rem;
+    transition: background-color var(--transition-duration) ease, transform var(--transition-duration) ease;
+}
+
+button:hover,
+button:focus {
+    background-color: var(--color-accent);
+    outline: 2px solid var(--color-accent);
+    outline-offset: 2px;
+    transform: translateY(-1px);
+}
+
+input, textarea {
+    font-family: inherit;
+    font-size: 1rem;
+    padding: 0.5rem;
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius);
+    background-color: var(--color-surface);
+    color: var(--color-text);
+    transition: border-color var(--transition-duration) ease, background-color var(--transition-duration) ease;
+}
+
+input:focus,
+textarea:focus {
+    border-color: var(--color-primary);
+    outline: none;
+}
+
+/* --------------------------------------------------------------- */
+/* 3. Layout */
+header {
+    width: 100%;
+    max-width: 600px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1rem;
+    padding: 0.5rem 1rem;
+    background-color: var(--color-surface);
+    border-radius: var(--radius);
+    box-shadow: var(--shadow);
+}
+
+.todo-input {
+    width: 100%;
+    max-width: 600px;
+    display: flex;
+    gap: 0.5rem;
+    margin-bottom: 1rem;
+}
+
+.todo-input input {
+    flex: 1;
+}
+
+.todo-list {
+    width: 100%;
+    max-width: 600px;
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    background-color: var(--color-surface);
+    border-radius: var(--radius);
+    box-shadow: var(--shadow);
+    overflow: hidden;
+}
+
+.todo-controls {
+    width: 100%;
+    max-width: 600px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 0.5rem;
+    padding: 0.5rem 1rem;
+    background-color: var(--color-surface);
+    border-radius: var(--radius);
+    box-shadow: var(--shadow);
+    flex-wrap: wrap;
+    gap: 0.5rem;
+}
+
+.todo-controls .filters {
+    display: flex;
+    gap: 0.5rem;
+}
+
+.todo-controls .filters .filter {
+    background: transparent;
+    color: var(--color-text);
+    padding: 0.25rem 0.5rem;
+    border-radius: var(--radius);
+    border: 1px solid var(--color-border);
+    transition: background-color var(--transition-duration) ease;
+}
+
+.todo-controls .filters .filter[aria-pressed="true"] {
+    background-color: var(--color-primary);
+    color: #fff;
+    border-color: var(--color-primary);
+}
+
+/* --------------------------------------------------------------- */
+/* 4. Todo Item Styling */
+.todo-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0.75rem 1rem;
+    border-bottom: 1px solid var(--color-border);
+    background-color: var(--color-surface);
+    transition: background-color var(--transition-duration) ease, color var(--transition-duration) ease;
+    animation: fadeInUp var(--transition-duration) ease forwards;
+}
+
+.todo-item:last-child {
+    border-bottom: none;
+}
+
+.todo-item .checkbox {
+    margin-right: 0.75rem;
+    width: 1.2rem;
+    height: 1.2rem;
+    cursor: pointer;
+}
+
+.todo-item .text {
+    flex: 1;
+    font-size: 1rem;
+    word-break: break-word;
+    color: var(--color-text);
+    transition: color var(--transition-duration) ease, opacity var(--transition-duration) ease;
+}
+
+.todo-item .edit,
+.todo-item .delete {
+    background: transparent;
+    color: var(--color-muted);
+    margin-left: 0.5rem;
+    padding: 0.25rem;
+    font-size: 1rem;
+    border-radius: 50%;
+    transition: color var(--transition-duration) ease, background-color var(--transition-duration) ease;
+}
+
+.todo-item .edit:hover,
+.todo-item .delete:hover,
+.todo-item .edit:focus,
+.todo-item .delete:focus {
+    color: var(--color-primary);
+    background-color: rgba(0,0,0,0.05);
+    outline: none;
+}
+
+.todo-item.completed .text {
+    text-decoration: line-through;
+    opacity: 0.6;
+}
+
+/* --------------------------------------------------------------- */
+/* 5. Drag‑and‑Drop Visuals */
+.dragging {
+    opacity: 0.5;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+    cursor: grabbing;
+}
+
+.placeholder {
+    border: 2px dashed var(--color-primary);
+    background-color: rgba(0,0,0,0.05);
+    height: 3rem; /* approximate height of a todo item */
+    margin: 0.5rem 0;
+    border-radius: var(--radius);
+}
+
+/* --------------------------------------------------------------- */
+/* 6. Animations */
+@keyframes fadeInUp {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@keyframes fadeOut {
+    from {
+        opacity: 1;
+        height: auto;
+        margin: 0.75rem 0;
+    }
+    to {
+        opacity: 0;
+        height: 0;
+        margin: 0;
+        padding: 0;
+    }
+}
+
+@keyframes themeTransition {
+    from { opacity: 0.9; }
+    to { opacity: 1; }
+}
+
+html {
+    animation: themeTransition 0.4s ease;
+}
+
+/* --------------------------------------------------------------- */
+/* 7. Theme Toggle Button */
+#theme-toggle {
+    background: transparent;
+    color: var(--color-text);
+    font-size: 1.2rem;
+    padding: 0.25rem;
+    border-radius: 50%;
+    border: 1px solid var(--color-border);
+    transition: background-color var(--transition-duration) ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+#theme-toggle::before {
+    content: "\2600"; /* sun symbol for light mode */
+    display: inline-block;
+    transition: transform var(--transition-duration) ease;
+}
+
+html[data-theme="dark"] #theme-toggle::before {
+    content: "\263C"; /* sun with rays – alternative moon could be \1F319 */
+    transform: rotate(180deg);
+}
+
+#theme-toggle:hover,
+#theme-toggle:focus {
+    background-color: var(--color-primary);
+    color: #fff;
+    outline: none;
+}
+
+/* --------------------------------------------------------------- */
+/* 8. Accessibility – Focus outlines */
+:focus-visible {
+    outline: 2px solid var(--color-accent);
+    outline-offset: 2px;
+}
+
+/* --------------------------------------------------------------- */
+/* Responsive Breakpoints */
+@media (max-width: 768px) {
+    header, .todo-input, .todo-list, .todo-controls {
+        max-width: 90%;
+    }
+}
+
+@media (max-width: 480px) {
+    header {
+        flex-direction: column;
+        gap: 0.5rem;
+    }
+    .todo-controls {
+        flex-direction: column;
+        align-items: stretch;
+    }
+    .todo-controls .filters {
+        justify-content: center;
+    }
+    button {
+        padding: 0.4rem 0.8rem;
+        font-size: 0.9rem;
+    }
+}
+
+/* End of styles.css */
